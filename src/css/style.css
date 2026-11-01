@@ -1,0 +1,117 @@
+/* ==========================================
+   TEMA TASKMATE — PENYESUAIAN DI ATAS BOOTSTRAP 5
+   ========================================== */
+
+:root {
+  --primary-color: #1f3b63;
+  --primary-hover: #16304f;
+  --bg-light: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+
+  /* Override Variabel Bootstrap */
+  --bs-primary: #1f3b63;
+  --bs-primary-rgb: 31, 59, 99;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: var(--bg-light) !important;
+  color: var(--text-main) !important;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 850px;
+}
+
+.card {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Navigasi Tab */
+.nav-pills .nav-link {
+  color: var(--text-muted);
+  border-radius: 8px;
+  padding: 8px 16px;
+  transition: all 0.2s ease;
+}
+
+.nav-pills .nav-link:hover {
+  background-color: #e0e7ff;
+  color: var(--primary-color);
+}
+
+.nav-pills .nav-link.active {
+  background-color: var(--primary-color) !important;
+  color: #ffffff !important;
+}
+
+/* Form Controls */
+.form-label {
+  color: var(--text-main);
+  font-size: 0.9rem;
+}
+
+.form-control, .form-select {
+  border: 1px solid var(--border-color) !important;
+  background-color: #ffffff !important;
+  color: var(--text-main) !important;
+  border-radius: 8px !important;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 0.25rem rgba(31, 59, 99, 0.15) !important;
+}
+
+/* Tombol */
+.btn-primary {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  border-radius: 8px !important;
+  padding: 10px 18px;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
+}
+
+/* Page Views */
+.page-view.d-none {
+  display: none !important;
+}
+
+.page-view.active {
+  display: block !important;
+}
+
+.audio-player-box {
+  background: #f1f5f9;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.is-invalid {
+  border-color: #ef4444 !important;
+}
+
+@media (max-width: 600px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 12px;
+  }
+}
