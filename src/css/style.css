@@ -114,4 +114,55 @@ body {
     align-items: flex-start !important;
     gap: 12px;
   }
+  /* Pasang pembawa batas teks pada seluruh elemen kartu daftar tugas */
+.task-item, 
+.card-body, 
+.card {
+  min-width: 0; /* Penting jika menggunakan Flexbox */
+}
+
+/* Paksa semua teks di dalam daftar tugas agar terlipat rapi */
+.task-item h4,
+.task-item h5,
+.task-item p,
+.task-item span,
+.task-title {
+  overflow-wrap: anywhere;    /* Memotong string panjang acak */
+  white-space: normal;
+  min-width: 0;
+}
+
+.task-item-content {
+  align-items: flex-start !important;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.task-item-content > div:first-child {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+.task-item-actions {
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+.task-item h5,
+.task-item p,
+.task-item small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+/* Efek hover untuk kartu yang bisa diklik */
+.card-clickable {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-clickable:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
 }
