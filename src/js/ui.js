@@ -1,33 +1,25 @@
-function escapeHTML(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-function formatDate(dateString) {
-  if (!dateString) return '-';
-  const date = new Date(dateString + 'T00:00:00');
-  return date.toLocaleDateString('id-ID', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
-}
+import { KartuTugas, ItemLagu, PesanKosong } from './komponen.js';
+import { statusPenyimpanan } from './storage.js';
 
 export function renderRingkasan({ total, selesai }) {
   const taskCount = document.getElementById('taskCount');
   const dashboardStatus = document.getElementById('dashboardStatus');
   const teksStatusTugas = document.getElementById('teksStatusTugas');
 
+  const peringatan = statusPenyimpanan()
+    ? ''
+    : ' (Peringatan: penyimpanan lokal tidak tersedia, data hanya di memori)';
+
   if (taskCount) taskCount.textContent = total;
   if (dashboardStatus) {
-    dashboardStatus.textContent =
+    const dasar =
       total === 0
         ? 'Belum ada tugas ditambahkan.'
         : `${selesai} dari ${total} tugas telah selesai dikerjakan.`;
+    dashboardStatus.textContent = dasar + peringatan;
   }
   if (teksStatusTugas) {
-    teksStatusTugas.textContent = `${selesai} dari ${total} tugas telah selesai dikerjakan.`;
+    teksStatusTugas.textContent = `${selesai} dari ${total} tugas telah selesai dikerjakan.${peringatan}`;
   }
 }
 
@@ -36,49 +28,17 @@ export function renderKelolaTugas(tasks) {
   if (!taskList) return;
 
   if (tasks.length === 0) {
-    taskList.innerHTML = `
-      <div id="emptyState" class="text-center py-5">
-        <div class="fs-1 mb-2">📋</div>
-        <h3 class="h5 fw-bold">Belum ada tugas</h3>
-        <p class="text-secondary small">Tambahkan tugas kuliah pertama kamu agar lebih mudah mengatur deadline.</p>
-      </div>
-    `;
+    taskList.replaceChildren(
+      PesanKosong('Tambahkan tugas kuliah pertama kamu agar lebih mudah mengatur deadline.', {
+        ikon: '📋',
+        judul: 'Belum ada tugas',
+        kelas: 'text-center py-5'
+      })
+    );
     return;
   }
 
-  taskList.innerHTML = tasks
-    .map((task) => {
-      let badgeColor = 'bg-secondary';
-      if (task.priority === 'Tinggi') badgeColor = 'bg-danger';
-      else if (task.priority === 'Sedang') badgeColor = 'bg-warning text-dark';
-      else if (task.priority === 'Rendah') badgeColor = 'bg-info text-dark';
-
-      return `
-        <div class="card task-item border mb-2 p-3 shadow-sm ${task.completed ? 'bg-light' : ''}">
-          <div class="d-flex justify-content-between align-items-center task-item-content">
-            <div>
-              <h5 class="h6 fw-bold mb-1 ${task.completed ? 'text-decoration-line-through text-muted' : ''}">
-                ${escapeHTML(task.name)}
-              </h5>
-              <p class="small text-secondary mb-1">📚 ${escapeHTML(task.course)}</p>
-              <div class="d-flex align-items-center gap-2">
-                <small class="text-muted">📅 ${formatDate(task.deadline)}</small>
-                <span class="badge ${badgeColor}">${task.priority}</span>
-              </div>
-            </div>
-            <div class="d-flex gap-2 task-item-actions">
-              <button type="button" class="btn btn-sm ${task.completed ? 'btn-outline-warning' : 'btn-outline-success'} action-btn complete-btn" data-id="${task.id}">
-                ${task.completed ? 'Batal' : 'Selesai'}
-              </button>
-              <button type="button" class="btn btn-sm btn-outline-danger action-btn delete-btn" data-id="${task.id}">
-                Hapus
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-    })
-    .join('');
+  taskList.replaceChildren(...tasks.map((task) => KartuTugas(task, { mode: 'kelola' })));
 }
 
 export function renderDashboardTugas(tugasTersaring) {
@@ -86,41 +46,13 @@ export function renderDashboardTugas(tugasTersaring) {
   if (!container) return;
 
   if (tugasTersaring.length === 0) {
-    container.innerHTML = `<p class="text-muted text-center py-3">Tidak ada tugas dalam kategori ini.</p>`;
+    container.replaceChildren(PesanKosong('Tidak ada tugas dalam kategori ini.'));
     return;
   }
 
-  container.innerHTML = tugasTersaring
-    .map(
-      (t) => `
-      <div class="card shadow-sm mb-3 overflow-hidden ${t.completed ? 'bg-light border-success' : ''}">
-        <div class="card-body d-flex align-items-center justify-content-between gap-3">
-          <div class="form-check d-flex align-items-center gap-2 m-0">
-            <input class="form-check-input me-2 dashboard-toggle-check" type="checkbox" ${t.completed ? 'checked' : ''} 
-              data-id="${t.id}" id="dash-task-${t.id}" style="cursor: pointer; width: 20px; height: 20px;">
-            
-            <label class="form-check-label w-100 min-w-0" for="dash-task-${t.id}" style="cursor: pointer;">
-              <h6 class="fw-bold mb-1 text-break ${t.completed ? 'text-decoration-line-through text-muted' : ''}">
-                ${escapeHTML(t.name)}
-              </h6>
-              <p class="text-secondary small mb-1 text-break">${escapeHTML(t.course)}</p>
-              <div class="d-flex align-items-center gap-2">
-                <small class="text-muted">🗓️ ${formatDate(t.deadline)}</small>
-                <span class="badge ${t.completed ? 'bg-success' : 'bg-warning text-dark'}">
-                  ${t.completed ? 'Selesai' : 'Belum Selesai'}
-                </span>
-              </div>
-            </label>
-          </div>
-
-          <button type="button" data-id="${t.id}" class="btn btn-outline-danger btn-sm text-nowrap dashboard-delete-btn">
-            Hapus
-          </button>
-        </div>
-      </div>
-    `
-    )
-    .join('');
+  container.replaceChildren(
+    ...tugasTersaring.map((t) => KartuTugas(t, { mode: 'dashboard' }))
+  );
 }
 
 export function renderPlaylist(playlist) {
@@ -128,25 +60,14 @@ export function renderPlaylist(playlist) {
   if (!listEl) return;
 
   if (playlist.length === 0) {
-    listEl.innerHTML = `<li class="list-group-item text-muted small">Belum ada lagu. Silakan tambahkan lagu di atas.</li>`;
+    const li = document.createElement('li');
+    li.className = 'list-group-item text-muted small';
+    li.textContent = 'Belum ada lagu. Silakan tambahkan lagu di atas.';
+    listEl.replaceChildren(li);
     return;
   }
 
-  listEl.innerHTML = playlist
-    .map(
-      (lagu) => `
-      <li class="list-group-item d-flex justify-content-between align-items-center gap-2 px-0">
-        <button type="button" class="btn btn-link text-decoration-none text-start text-dark p-0 text-truncate btn-putar-lagu" 
-          data-id="${lagu.id}">
-          ▶️ ${escapeHTML(lagu.nama)}
-        </button>
-        <button type="button" class="btn btn-outline-danger btn-sm btn-hapus-lagu" data-id="${lagu.id}">
-          Hapus
-        </button>
-      </li>
-    `
-    )
-    .join('');
+  listEl.replaceChildren(...playlist.map((lagu) => ItemLagu(lagu)));
 }
 
 export function showError(inputElement, errorId, message) {
@@ -179,8 +100,14 @@ export function showLoading(isLoading) {
 export function showMessage(message, alertClass) {
   const formMessage = document.getElementById('formMessage');
   if (!formMessage) return;
-  formMessage.innerHTML = `<div class="alert ${alertClass} py-2 px-3 mb-0" role="alert">${message}</div>`;
+
+  const alertBox = document.createElement('div');
+  alertBox.className = `alert ${alertClass} py-2 px-3 mb-0`;
+  alertBox.setAttribute('role', 'alert');
+  alertBox.textContent = message;
+
+  formMessage.replaceChildren(alertBox);
   setTimeout(() => {
-    formMessage.innerHTML = '';
+    formMessage.replaceChildren();
   }, 3000);
 }
